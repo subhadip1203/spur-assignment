@@ -1,101 +1,95 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import React, { useState } from "react";
+import ScheduleModal from "@/app/components/ScheduleModal";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+export default function DashboardCalendar() {
+    const events = [
+        { title: "Demo Suite", time: "11:00 AM", day: 1 }, // Monday
+        { title: "Authentication", time: "8:00 AM", day: 3 }, // Wednesday
+    ];
+
+    const hours = Array.from({ length: 24 }, (_, i) => `${i === 0 ? 12 : i > 12 ? i - 12 : i}:00 ${i >= 12 ? "PM" : "AM"}`);
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
+
+    return (
+        <div className="p-8 bg-gray-50 min-h-screen">
+            {/* Header Section */}
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold text-gray-900">Scheduled Suites</h1>
+                <div className="flex items-center space-x-4">
+                    {/* Schedule Test Button */}
+                    <button onClick={openModal} className="bg-blue-600 text-white flex items-center px-4 py-2 rounded-md hover:bg-blue-700 shadow-md">
+                        <span className="mr-2">+</span> Schedule Test
+                    </button>
+
+                    {/* Modal Component */}
+                    <ScheduleModal isOpen={isModalOpen} onClose={closeModal} />
+
+
+                    {/* Week Navigation */}
+                    <div className="flex items-center space-x-2">
+                        <button className="bg-gray-200 flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-300 shadow-sm">
+                            &lt;
+                        </button>
+                        <span className="text-lg font-medium text-gray-700">Week of 10/09/24</span>
+                        <button className="bg-gray-200 flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-300 shadow-sm">
+                            &gt;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-8 gap-px bg-gray-300 border-t border-gray-300 rounded-lg overflow-hidden">
+                {/* Column Headers */}
+                <div className="bg-gray-100"></div>
+                {days.map((day, index) => (
+                    <div
+                        key={`day-${index}`}
+                        className="bg-gray-100 text-center font-semibold text-gray-700 py-2 border-b border-gray-300"
+                    >
+                        {day}
+                    </div>
+                ))}
+
+                {/* Time and Calendar Rows */}
+                {hours.map((hour, rowIndex) => (
+                    <React.Fragment key={`hour-row-${rowIndex}`}>
+                        {/* Hour Column */}
+                        <div
+                            key={`hour-${rowIndex}`}
+                            className="bg-gray-100 text-right pr-2 font-medium text-gray-600 py-4 border-r border-gray-300"
+                        >
+                            {hour}
+                        </div>
+                        {days.map((_, colIndex) => (
+                            <div
+                                key={`cell-${rowIndex}-${colIndex}`}
+                                className="bg-white h-20 relative border-r border-gray-300"
+                            >
+                                {events.map(
+                                    (event, i) =>
+                                        event.time === hour && event.day === colIndex && (
+                                            <div
+                                                key={`event-${i}-${rowIndex}-${colIndex}`}
+                                                className="absolute top-2 left-2 bg-blue-50 border border-blue-400 text-blue-600 text-sm font-medium px-3 py-1 rounded-md shadow"
+                                            >
+                                                {event.title}
+                                                <br />
+                                                <span className="text-xs">{event.time}</span>
+                                            </div>
+                                        )
+                                )}
+                            </div>
+                        ))}
+                    </React.Fragment>
+                ))}
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
